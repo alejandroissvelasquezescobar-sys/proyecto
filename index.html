@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Spa de Mascotas</title>
+<link rel="stylesheet" href="estilos\estilos.css">
+</head>
+<body>
+    <script src="java\java.js"></script>
+
+    <!-- LOGIN -->
+    <section id="login-section">
+        <h2>Inicio de Sesión</h2>
+        <form id="loginForm">
+            <input type="text" id="user" placeholder="Usuario" required>
+            <input type="password" id="pass" placeholder="Contraseña" required>
+            <button type="submit">Entrar</button>
+        </form>
+        <p id="loginError" class="error"></p>
+    </section>
+
+    <!-- SISTEMA -->
+    <section id="app" class="hidden">
+
+        <!-- NAV -->
+        <nav>
+            <button onclick="mostrar('mod-registro')">Registro</button>
+            <button onclick="mostrar('mod-agenda')">Agenda</button>
+            <button onclick="mostrar('mod-carrito')">Carrito</button>
+            <button id="logoutBtn">Cerrar Sesión</button>
+        </nav>
+
+        <!-- MÓDULO REGISTRO -->
+        <section id="mod-registro" class="modulo hidden">
+            <h2>Registro de Dueños</h2>
+            <form id="formDueno">
+                <input type="text" id="duenoNombre" placeholder="Nombre" required>
+                <input type="text" id="duenoTelefono" placeholder="Teléfono" required>
+                <input type="email" id="duenoCorreo" placeholder="Correo" required>
+                <button type="submit">Registrar Dueño</button>
+            </form>
+
+            <h2>Registro de Mascotas</h2>
+            <form id="formMascota">
+                <input type="text" id="mascotaNombre" placeholder="Nombre" required>
+                <input type="text" id="mascotaEspecie" placeholder="Especie" required>
+                <input type="text" id="mascotaRaza" placeholder="Raza" required>
+                <button type="submit">Registrar Mascota</button>
+            </form>
+
+            <div id="listaRegistros"></div>
+        </section>
+
+        <!-- MÓDULO AGENDA -->
+        <section id="mod-agenda" class="modulo hidden">
+            <h2>Agenda de Servicios</h2>
+            <form id="formAgenda">
+                <input type="date" id="agendaFecha" required>
+                <input type="time" id="agendaHora" required>
+                <input type="text" id="agendaMascota" placeholder="Nombre de mascota" required>
+                <input type="text" id="agendaServicio" placeholder="Servicio" required>
+                <button type="submit">Agendar</button>
+            </form>
+
+            <div id="listaAgenda"></div>
+        </section>
+
+        <!-- MÓDULO CARRITO -->
+        <section id="mod-carrito" class="modulo hidden">
+            <h2>Carrito de Compras</h2>
+            <img src="imagenes\imagen 1.jpg" alt="">
+
+            <div id="catalogo"></div>
+
+            <h3>Carrito:</h3>
+            <ul id="listaCarrito"></ul>
+
+            <p>Subtotal: <span id="subtotal">0</span> Bs</p>
+            <p>Total: <span id="total">0</span> Bs</p>
+        </section>
+    </section>
+
+    <script>
+// ----------------- LOGIN -----------------
+const loginSection = document.getElementById("login-section");
+const app = document.getElementById("app");
+
+document.getElementById("loginForm").addEventListener("submit", (e)=>{
+    e.preventDefault();
+
+    let user = document.getElementById("user").value;
+    let pass = document.getElementById("pass").value;
+
+    if(user === "admin" && pass === "1234"){
+        loginSection.classList.add("hidden");
+        app.classList.remove("hidden");
+    } else {
+        document.getElementById("loginError").textContent = "Datos incorrectos";
+    }
+});
+
+document.getElementById("logoutBtn").addEventListener("click", ()=>{
+    app.classList.add("hidden");
+    loginSection.classList.remove("hidden");
+});
+
+// ----------------- NAVEGACIÓN -----------------
+function mostrar(id){
+    document.querySelectorAll(".modulo").forEach(m => m.classList.add("hidden"));
+    document.getElementById(id).classList.remove("hidden");
+}
+
+// ----------------- REGISTRO -----------------
+let registros = [];
+
+document.getElementById("formDueno").addEventListener("submit",(e)=>{
+    e.preventDefault();
+    
+    let dueno = {
+        nombre: duenoNombre.value,
+        telefono: duenoTelefono.value,
+        correo: duenoCorreo.value
+    };
+
+    registros.push({ tipo: "Dueño", ...dueno });
+    mostrarRegistros();
+});
+
+document.getElementById("formMascota").addEventListener("submit",(e)=>{
+    e.preventDefault();
+    
+    let mascota = {
+        nombre: mascotaNombre.value,
+        especie: mascotaEspecie.value,
+        raza: mascotaRaza.value
+    };
+
+    registros.push({ tipo: "Mascota", ...mascota });
+    mostrarRegistros();
+});
+
+function mostrarRegistros(){
+    let cont = document.getElementById("listaRegistros");
+    cont.innerHTML = "";
+
+    registros.forEach(r=>{
+        let p = document.createElement("p");
+        p.textContent = `${r.tipo}: ${JSON.stringify(r)}`;
+        cont.appendChild(p);
+    });
+}
+
+// ----------------- AGENDA -----------------
+let agenda = [];
+
+document.getElementById("formAgenda").addEventListener("submit",(e)=>{
+    e.preventDefault();
+
+    let item = {
+        fecha: agendaFecha.value,
+        hora: agendaHora.value,
+        mascota: agendaMascota.value,
+        servicio: agendaServicio.value
+    };
+
+    agenda.push(item);
+    mostrarAgenda();
+});
+
+function mostrarAgenda(){
+    let cont = document.getElementById("listaAgenda");
+    cont.innerHTML = "";
+
+    agenda.forEach(a=>{
+        let p = document.createElement("p");
+        p.textContent = `${a.fecha} ${a.hora} - ${a.mascota} (${a.servicio})`;
+        cont.appendChild(p);
+    });
+}
+
+// ----------------- CARRITO -----------------
+let productos = [
+    { nombre: "Baño Completo", precio: 30 },
+    { nombre: "Corte de Pelo", precio: 25 },
+    { nombre: "Juguete", precio: 15 },
+    { nombre: "Alimento Premium", precio: 40 }
+];
+
+let carrito = [];
+
+function mostrarCatalogo(){
+    let cont = document.getElementById("catalogo");
+    cont.innerHTML = "";
+
+    productos.forEach((p,i)=>{
+        let div = document.createElement("div");
+        div.innerHTML = `
+            <h4>${p.nombre}</h4>
+            <p>Precio: ${p.precio} Bs</p>
+            <button onclick="agregarCarrito(${i})">Comprar</button>
+        `;
+        cont.appendChild(div);
+    });
+}
+
+mostrarCatalogo();
+
+function agregarCarrito(i){
+    carrito.push(productos[i]);
+    mostrarCarrito();
+}
+
+function mostrarCarrito(){
+    let lista = document.getElementById("listaCarrito");
+    lista.innerHTML = "";
+
+    let subtotal = 0;
+
+    carrito.forEach(c=>{
+        let li = document.createElement("li");
+        li.textContent = `${c.nombre} - ${c.precio} Bs`;
+        lista.appendChild(li);
+        subtotal += c.precio;
+    });
+
+    document.getElementById("subtotal").textContent = subtotal;
+    document.getElementById("total").textContent = subtotal;
+}
+
+
+    </script>
+
+</body>
+</html>
